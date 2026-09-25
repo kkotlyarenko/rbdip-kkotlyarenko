@@ -43,7 +43,7 @@ public class OrderController {
                             "customerFullName", order.getCustomerFullName(),
                             "status", order.getStatus(),
                             "items", items.stream()
-                                    .map(i -> Map.of("productName", i.getProductName(), "quantity", i.getQuantity()))
+                                    .map(i -> Map.of("productName", i.getProduct().getName(), "quantity", i.getQuantity()))
                                     .toList());
                 })
                 .toList();

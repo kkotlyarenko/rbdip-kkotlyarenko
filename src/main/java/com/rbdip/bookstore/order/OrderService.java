@@ -1,10 +1,13 @@
 package com.rbdip.bookstore.order;
 
+import com.rbdip.bookstore.customer.Customer;
+import com.rbdip.bookstore.customer.CustomerRepository;
 import com.rbdip.bookstore.product.Product;
 import com.rbdip.bookstore.product.ProductRepository;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +21,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final CustomerRepository customerRepository;
     private final PricingCalculator pricingCalculator;
     private final OrderNotifier orderNotifier;
 
@@ -25,11 +29,13 @@ public class OrderService {
             ProductRepository productRepository,
             OrderRepository orderRepository,
             OrderItemRepository orderItemRepository,
+            CustomerRepository customerRepository,
             PricingCalculator pricingCalculator,
             OrderNotifier orderNotifier) {
         this.productRepository = productRepository;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+        this.customerRepository = customerRepository;
         this.pricingCalculator = pricingCalculator;
         this.orderNotifier = orderNotifier;
     }
@@ -50,7 +56,8 @@ public class OrderService {
         BigDecimal total = pricingCalculator.calculateOrderTotal(
                 lineItems, validated.customerType(), validated.couponCode());
 
-        Order order = orderRepository.save(OrderAssembler.newOrder(validated));
+        Customer customer = findOrCreateCustomer(validated);
+        Order order = orderRepository.save(OrderAssembler.newOrder(customer));
 
         for (int i = 0; i < products.size(); i++) {
             orderItemRepository.save(
@@ -60,5 +67,12 @@ public class OrderService {
         orderNotifier.sendConfirmation(validated.customerFullName(), order.getId(), total);
 
         return order;
+    }
+
+    private Customer findOrCreateCustomer(ValidatedOrder validated) {
+        Optional<Customer> existing = validated.customerPhone() == null
+                ? customerRepository.findByFullNameAndPhoneIsNull(validated.customerFullName())
+                : customerRepository.findByFullNameAndPhone(validated.customerFullName(), validated.customerPhone());
+        return existing.orElseGet(() -> customerRepository.save(OrderAssembler.newCustomer(validated)));
     }
 }
