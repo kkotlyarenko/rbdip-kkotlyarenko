@@ -11,7 +11,8 @@ public final class OrderAssembler {
     }
 
     public static Customer newCustomer(ValidatedOrder request) {
-        return new Customer(request.customerFullName(), request.customerAddress(), request.customerPhone());
+        return new Customer(
+                request.firstName(), request.lastName(), request.customerAddress(), request.customerPhone());
     }
 
     public static Order newOrder(Customer customer) {

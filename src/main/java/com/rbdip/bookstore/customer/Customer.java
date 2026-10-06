@@ -15,8 +15,11 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "full_name", nullable = false)
-    private String fullName;
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
 
     @Column
     private String address;
@@ -28,8 +31,9 @@ public class Customer {
         // for JPA
     }
 
-    public Customer(String fullName, String address, String phone) {
-        this.fullName = fullName;
+    public Customer(String firstName, String lastName, String address, String phone) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.address = address;
         this.phone = phone;
     }
@@ -38,8 +42,19 @@ public class Customer {
         return id;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
     public String getFullName() {
-        return fullName;
+        if (lastName == null || lastName.isBlank()) {
+            return firstName;
+        }
+        return firstName + " " + lastName;
     }
 
     public String getAddress() {

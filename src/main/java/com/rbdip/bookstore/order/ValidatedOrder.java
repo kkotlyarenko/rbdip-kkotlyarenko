@@ -12,4 +12,16 @@ public record ValidatedOrder(
 
     public record Item(Long productId, int quantity) {
     }
+
+    public String firstName() {
+        String full = customerFullName == null ? "" : customerFullName.trim();
+        int separator = full.indexOf(' ');
+        return separator < 0 ? full : full.substring(0, separator);
+    }
+
+    public String lastName() {
+        String full = customerFullName == null ? "" : customerFullName.trim();
+        int separator = full.indexOf(' ');
+        return separator < 0 ? "" : full.substring(separator + 1).trim();
+    }
 }

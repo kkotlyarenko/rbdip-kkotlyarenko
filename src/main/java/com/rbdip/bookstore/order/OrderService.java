@@ -71,8 +71,10 @@ public class OrderService {
 
     private Customer findOrCreateCustomer(ValidatedOrder validated) {
         Optional<Customer> existing = validated.customerPhone() == null
-                ? customerRepository.findByFullNameAndPhoneIsNull(validated.customerFullName())
-                : customerRepository.findByFullNameAndPhone(validated.customerFullName(), validated.customerPhone());
+                ? customerRepository.findByFirstNameAndLastNameAndPhoneIsNull(
+                        validated.firstName(), validated.lastName())
+                : customerRepository.findByFirstNameAndLastNameAndPhone(
+                        validated.firstName(), validated.lastName(), validated.customerPhone());
         return existing.orElseGet(() -> customerRepository.save(OrderAssembler.newCustomer(validated)));
     }
 }
